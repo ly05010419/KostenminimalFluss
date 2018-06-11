@@ -1,0 +1,7 @@
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\bin\Debug\KostenminimalFluss.exe.config
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\bin\Debug\KostenminimalFluss.exe
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\bin\Debug\KostenminimalFluss.pdb
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\obj\Debug\KostenminimalFluss.csprojResolveAssemblyReference.cache
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\obj\Debug\KostenminimalFluss.csproj.CoreCompileInputs.cache
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\obj\Debug\KostenminimalFluss.exe
+C:\Users\yongli\source\repos\KostenminimalFluss\KostenminimalFluss\obj\Debug\KostenminimalFluss.pdb
