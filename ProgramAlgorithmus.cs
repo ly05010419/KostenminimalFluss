@@ -51,12 +51,13 @@ namespace namespaceAlgorithmus
                 d.pseudoBalance = graph.getPseudoBalance(d);
             }
 
-            Node source = null;
-            Node taget = null;
-
             Graph residualGraph = createResidualGraph(graph);
 
-            Path shortestPath = getShortestPath(residualGraph, out source, out taget);
+            Node source = null;
+            Node taget = null;
+            Path shortestPath = null;
+                
+            findShortestPath(residualGraph, out source, out taget, out shortestPath);
 
 
             while (shortestPath != null)
@@ -67,7 +68,7 @@ namespace namespaceAlgorithmus
 
                 residualGraph = createResidualGraph(graph);
 
-                shortestPath = getShortestPath(residualGraph, out source, out taget);
+                findShortestPath(residualGraph, out source, out taget, out shortestPath);
             }
 
             foreach (Node node in graph.nodeList) {
@@ -77,52 +78,40 @@ namespace namespaceAlgorithmus
                 }
             }
 
-            double sum = kostenMinimalFluss(graph);
+            double sum = calculateCosts(graph);
 
             Console.WriteLine("sum:" + sum);
-
-
         }
 
-        public double kostenMinimalFluss(Graph graph)
+       
+        public void findShortestPath(Graph graph, out Node source, out Node taget, out Path shortestPath)
         {
-            double sum = 0;
-
-            foreach (Edge e in graph.edgeList)
-            {
-                sum = sum + e.flow * e.costs;
-            }
-
-            return sum;
-
-        }
-
-
-        public Path getShortestPath(Graph residualGraph, out Node source, out Node taget)
-        {
-            List<Node> sourceList = residualGraph.getSource();
+            List<Node> sourceList = graph.getSource();
             
-            source = null;
-            taget = null;
-
             foreach (Node s in sourceList) {
-                Graph shortestPathTree = MooreBellmanFord(residualGraph, s.id);
+
+                Graph shortestPathTree = getShortestPathTree(graph, s.id);
 
                 Node t = getTargetFromBFS(shortestPathTree, s.id);
 
                 if (t != null) {
                     source = s;
                     taget = t;
-                    return getShortestPathFromID(shortestPathTree, t.id);
+                    shortestPath = getShortestPathFromID(shortestPathTree, t.id);
+                    return;
                 }
             }
 
-            return null;
+            source = null;
+            taget = null;
+            shortestPath = null;
+
         }
 
         public Node getTargetFromBFS(Graph g, int startId)
         {
             Graph graph = cloneGraph(g);
+
             graph.reset();
 
             Queue<Node> queue = new Queue<Node>();
@@ -155,12 +144,12 @@ namespace namespaceAlgorithmus
         }
 
 
-        public void updateOrignalGraph(Graph graph, Path shortPath, double gamma, int startId, int endId)
+        public void updateOrignalGraph(Graph graph, Path shortestPath, double gamma, int startId, int endId)
         {
 
             foreach (Edge e in graph.edgeList.ToArray())
             {
-                foreach (Edge se in shortPath.edgeList)
+                foreach (Edge se in shortestPath.edgeList)
                 {
                     if (e.id == se.id)
                     {
@@ -182,32 +171,8 @@ namespace namespaceAlgorithmus
 
         }
 
-        public Graph createResidualGraph(Graph g)
-        {
-            Graph graph = cloneGraph(g);
-
-            foreach (Edge e in graph.edgeList.ToArray())
-            {
-                if (e.flow > 0)
-                {
-                    if (e.flow == e.capacity)
-                    {
-                        graph.removeEdge(e);
-                    }
-                    e.capacity = e.capacity - e.flow;
-                    graph.createOrUpdateEdge(e.endNode, e.startNode, e.flow, -e.costs, 0);
-                    e.flow = 0;
-                }
-
-            }
-
-            return graph;
-        }
-
-        
-
-
-        public Graph MooreBellmanFord(Graph g, int startId)
+        //MooreBellmanFord
+        public Graph getShortestPathTree(Graph g, int startId)
         {
             Graph graph = cloneGraph(g);
             //init
@@ -270,17 +235,14 @@ namespace namespaceAlgorithmus
 
 
 
-        public void cycleCancelling(Graph g)
+        public void cycleCancelling(Graph graph)
         {
-
-            Graph graph = cloneGraph(g);
-
             Node superSource = createSuperSource(graph);
             balance = superSource.balance;
 
             Node superSink = createSuperSink(graph);
 
-            List<Path> flussList = fordFulkerson(graph, superSource.id, superSink.id);
+            List<Path> flussList = findMaximalFlows(graph, superSource.id, superSink.id);
 
             double maxCapacity = getMaxFlussCapacity(flussList);
 
@@ -290,96 +252,78 @@ namespace namespaceAlgorithmus
                 return;
             }
 
+            udpateGraphWithFlussList(graph, flussList);
+
             removeSuperSource(graph, superSource);
 
             removeSuperSink(graph, superSink);
 
+            Graph residualGraph =  createResidualGraph(graph);
 
-            Cycle negativeCycle = findCycleMooreBellmanFord(graph);
+            Path negativeCycle = findNegativeCycle(residualGraph);
 
 
             while (negativeCycle != null)
             {
 
-                graph = updateGraph(graph, negativeCycle);
+                updateGraphWithNegativeCycle(graph, negativeCycle);
 
-                negativeCycle = findCycleMooreBellmanFord(graph);
+                residualGraph = createResidualGraph(graph);
+
+                negativeCycle = findNegativeCycle(residualGraph);
 
             }
 
-            double sum = capacityFormKostenMinimalFluss(graph, g);
+            double sum = calculateCosts(graph);
 
             Console.WriteLine("sum:" + sum);
 
         }
 
 
-        public double getMaxFlussCapacity(List<Path> flussList)
+        public void udpateGraphWithFlussList(Graph graph, List<Path> flussList)
         {
-            double maxCapacity = 0;
-
-            foreach (Path f in flussList)
+            foreach (Path path in flussList)
             {
-                maxCapacity = maxCapacity + f.capacity;
-            }
-
-            return maxCapacity;
-        }
-
-        public double capacityFormKostenMinimalFluss(Graph graph, Graph oldGraph)
-        {
-            double sum = 0;
-
-            foreach (Edge e in oldGraph.edgeList)
-            {
-                Edge edge = graph.findEdge(e.startNode, e.endNode);
-                if (edge != null)
-                {
-                    sum = sum + (e.capacity - edge.capacity) * e.costs;
-                }
-                else
-                {
-                    sum = sum + e.capacity * e.costs;
+                foreach (Edge e in path.edgeList) {
+                    Edge edge = graph.findEdge(e.id);
+                    edge.flow = edge.flow + path.capacity;
                 }
             }
 
-            return sum;
+           
         }
 
+        
 
 
-        public Graph updateGraph(Graph graph, Cycle negativeCycle)
+
+        public void updateGraphWithNegativeCycle(Graph graph, Path negativeCycle)
         {
             foreach (Edge e in negativeCycle.edgeList)
             {
 
-                Edge forwardEdge = graph.findEdge(e.startNode, e.endNode);
-                forwardEdge.capacity = forwardEdge.capacity - negativeCycle.capacity;
+                Edge forwardEdge = graph.findEdge(e.id);
 
 
-                if (forwardEdge.capacity == 0)
-                {
-                    graph.removeEdge(forwardEdge);
+                if (forwardEdge != null) {
+                    forwardEdge.flow = forwardEdge.flow + negativeCycle.capacity;
                 }
 
-                Edge backEdge = graph.findEdge(e.endNode, e.startNode);
-                if (backEdge != null)
-                {
-                    backEdge.capacity = backEdge.capacity + negativeCycle.capacity;
+                Edge backwardEdge = graph.findEdge(e.rId);
 
-                }
-                else
+                if (backwardEdge != null)
                 {
-                    graph.createOrUpdateEdge(e.endNode, e.startNode, negativeCycle.capacity, -forwardEdge.costs, negativeCycle.capacity);
+                    backwardEdge.flow = backwardEdge.flow - negativeCycle.capacity;
                 }
+
             }
-
-            return graph;
         }
 
-        public Cycle findCycleMooreBellmanFord(Graph graph)
+        //MooreBellmanFord
+        public Path findNegativeCycle(Graph g)
         {
-
+            Graph graph = cloneGraph(g);
             //init
             foreach (Node node in graph.nodeList)
             {
@@ -448,7 +392,7 @@ namespace namespaceAlgorithmus
                     nodeInNegativeCycle = nodeInNegativeCycle.previousNode;
                 }
 
-                return new Cycle(edges);
+                return new Path(edges);
             }
             else
             {
@@ -456,8 +400,10 @@ namespace namespaceAlgorithmus
             }
         }
 
-        public List<Path> fordFulkerson(Graph graph, int startId, int endId)
+        //FordFulkerson
+        public List<Path> findMaximalFlows(Graph g, int startId, int endId)
         {
+            Graph graph = cloneGraph(g);
 
             List<Path> flussList = new List<Path>();
 
@@ -504,8 +450,7 @@ namespace namespaceAlgorithmus
             return graph;
         }
 
-
-
+        
         public Path BFS(Graph graph, int startId, int endId)
         {
             graph.reset();
@@ -549,6 +494,8 @@ namespace namespaceAlgorithmus
 
             return fluss;
         }
+
+
 
         public Path getShortestPathFromID(Graph graph, int endId)
         {
@@ -630,8 +577,17 @@ namespace namespaceAlgorithmus
             graph.nodeList.Remove(superSink);
         }
 
+        public double getMaxFlussCapacity(List<Path> flussList)
+        {
+            double maxCapacity = 0;
 
+            foreach (Path f in flussList)
+            {
+                maxCapacity = maxCapacity + f.capacity;
+            }
 
+            return maxCapacity;
+        }
 
         public Node createSuperSource(Graph graph)
         {
@@ -658,7 +614,6 @@ namespace namespaceAlgorithmus
 
             Node superSink = new Node(graph.nodeList.Count);
 
-
             foreach (Node n in graph.nodeList)
             {
                 if (n.balance < 0)
@@ -670,6 +625,37 @@ namespace namespaceAlgorithmus
 
             graph.nodeList.Add(superSink);
             return superSink;
+        }
+
+        public double calculateCosts(Graph graph)
+        {
+            double sum = 0;
+            foreach (Edge e in graph.edgeList)
+            {
+                sum = sum + e.flow * e.costs;
+            }
+            return sum;
+        }
+
+        public Graph createResidualGraph(Graph g)
+        {
+            Graph graph = cloneGraph(g);
+
+            foreach (Edge e in graph.edgeList.ToArray())
+            {
+                if (e.flow > 0)
+                {
+                    if (e.flow == e.capacity)
+                    {
+                        graph.removeEdge(e);
+                    }
+                    e.capacity = e.capacity - e.flow;
+                    graph.createOrUpdateEdge(e.endNode, e.startNode, e.flow, -e.costs, 0);
+                    e.flow = 0;
+                }
+            }
+
+            return graph;
         }
 
     }

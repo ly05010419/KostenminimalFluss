@@ -56,16 +56,26 @@ namespace namespaceStuktur
 
         public Edge findEdge(Node startNode, Node endNode)
         {
-            //Edge edge = this.array[startNode.id, endNode.id];
-
             foreach (Edge e in edgeList) {
                 if (e.startNode.id == startNode.id && e.endNode.id == endNode.id) {
                     return e;
                 }
-
             }
 
             return null ;
+        }
+
+        public Edge findEdge(string edgeId)
+        {
+            foreach (Edge e in edgeList)
+            {
+                if (e.id==edgeId)
+                {
+                    return e;
+                }
+            }
+
+            return null;
         }
 
         public Edge createOrUpdateEdge(Node startNode, Node endNode, double capacity, double costs,double flow)
@@ -97,6 +107,7 @@ namespace namespaceStuktur
         public List<Node> getSource()
         {
             List<Node> sourceList = new List<Node>();
+
             foreach (Node n in nodeList) {
                 if (n.balance>n.pseudoBalance) {
                     sourceList.Add(n);
@@ -227,26 +238,7 @@ namespace namespaceStuktur
         }
     }
 
-    class Cycle
-    {
-        public List<Edge> edgeList;
-        public double capacity;
-
-        public Cycle(List<Edge> edgeList)
-        {
-            this.edgeList = edgeList;
-
-            double minCapacity = Double.MaxValue;
-            foreach (Edge e in edgeList)
-            {
-                if (e.capacity < minCapacity)
-                {
-                    minCapacity = e.capacity;
-                }
-            }
-            this.capacity = minCapacity;
-        }
-    }
+   
 
     class Path
     {
@@ -282,9 +274,5 @@ namespace namespaceStuktur
         }
 
     }
-
-
-
-
 
 }

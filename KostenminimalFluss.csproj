@@ -57,6 +57,7 @@
     <Content Include="kostenminimalFluss\Kostenminimal2.txt" />
     <Content Include="kostenminimalFluss\Kostenminimal3.txt" />
     <Content Include="kostenminimalFluss\Kostenminimal4.txt" />
+    <Content Include="kostenminimalFluss\Kostenminimal5.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest1.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest2.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest4.txt" />
