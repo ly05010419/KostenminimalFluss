@@ -68,7 +68,7 @@ namespace namespaceUtility
             Node son = nodeList[sonIndex];
             vater.nodeList.Add(son);
 
-            Edge edge = new Edge(vater, son, capacity, costs);
+            Edge edge = new Edge(vater, son, capacity, costs,0);
             vater.edgeList.Add(edge);
 
             edgeList.Add(edge);

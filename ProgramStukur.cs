@@ -25,7 +25,26 @@ namespace namespaceStuktur
         }
 
 
-            public void reset()
+
+        public double getPseudoBalance(Node d)
+        {
+            double inSume = 0.0;
+            double outSume = 0.0;
+            foreach (Edge e in edgeList) {
+                if (e.endNode.id == d.id) {
+                    inSume = inSume + e.flow;
+                } else if (e.startNode.id == d.id) {
+                    outSume = outSume + e.flow;
+                }
+            }
+
+            double pseudoBalance = outSume - inSume;
+
+            return pseudoBalance;
+        }
+
+
+        public void reset()
         {
             foreach (Node d in nodeList)
             {
@@ -54,12 +73,11 @@ namespace namespaceStuktur
             Edge e = findEdge(startNode, endNode);
             if (e == null)
             {
-                e = new Edge(startNode, endNode, capacity, costs);
+                e = new Edge(startNode, endNode, capacity, costs,flow);
                 startNode.edgeList.Add(e);
                 startNode.nodeList.Add(endNode);
                 this.edgeList.Add(e);
                 //this.array[startNode.id, endNode.id] = e;
-               
             }
             else
             {
@@ -76,6 +94,20 @@ namespace namespaceStuktur
             this.edgeList.Remove(e);
            // this.array[e.startNode.id, e.endNode.id] = null;
         }
+        public List<Node> getSource()
+        {
+            List<Node> sourceList = new List<Node>();
+            foreach (Node n in nodeList) {
+                if (n.balance>n.pseudoBalance) {
+                    sourceList.Add(n);
+                }
+            }
+
+            return sourceList;
+        }
+
+        
+
     }
 
     class MST
@@ -128,8 +160,6 @@ namespace namespaceStuktur
     {
         public int id;
 
-        public double balance;
-
         public List<Edge> edgeList;
 
         public List<Node> nodeList;
@@ -137,6 +167,10 @@ namespace namespaceStuktur
         public bool visited = false;
 
         public double costs;
+
+        public double balance;
+
+        public double pseudoBalance;
 
         public Node previousNode;
 
@@ -164,23 +198,32 @@ namespace namespaceStuktur
     {
         public Node endNode;
         public Node startNode;
-        public double capacity;
-        public double costs;
-       
+        public double capacity = 0.0;
+        public double costs = 0.0;
+        public double flow = 0.0;
+        public string id;
+        public string rId;
 
-
-        public Edge(Node startNode, Node endNode, double capacity, double costs)
+        public Edge(Node startNode, Node endNode, double capacity, double costs, double flow)
         {
             this.startNode = startNode;
             this.endNode = endNode;
             this.capacity = capacity;
             this.costs = costs;
-           
+            this.flow = flow;
+
+            id = startNode.id + "-" + endNode.id;
+            rId = endNode.id + "-" + startNode.id;
         }
 
         public int CompareTo(Edge other)
         {
             return this.capacity.CompareTo(other.capacity);
+        }
+
+        public override string ToString()
+        {
+            return "["+id+":"+flow+","+capacity+","+costs+"]";
         }
     }
 
@@ -205,12 +248,12 @@ namespace namespaceStuktur
         }
     }
 
-    class Fluss
+    class Path
     {
         public List<Edge> edgeList;
         public double capacity;
 
-        public Fluss(List<Edge> edgeList)
+        public Path(List<Edge> edgeList)
         {
             this.edgeList = edgeList;
 
@@ -225,7 +268,21 @@ namespace namespaceStuktur
 
             this.capacity = minCapacity;
         }
+
+
+        public override string ToString()
+        {
+
+            string s = "";
+
+            foreach (Edge e in edgeList) {
+                s = s + "" + e.id+" ";
+            }
+            return s;
+        }
+
     }
+
 
 
 

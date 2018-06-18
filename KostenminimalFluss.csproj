@@ -57,9 +57,9 @@
     <Content Include="kostenminimalFluss\Kostenminimal2.txt" />
     <Content Include="kostenminimalFluss\Kostenminimal3.txt" />
     <Content Include="kostenminimalFluss\Kostenminimal4.txt" />
-    <Content Include="kostenminimalFluss\KostenminimalTest4.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest1.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest2.txt" />
+    <Content Include="kostenminimalFluss\KostenminimalTest4.txt" />
     <Content Include="kostenminimalFluss\KostenminimalTest3.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
