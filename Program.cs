@@ -10,6 +10,7 @@ namespace KostenminimalFluss
         {
             Algorithmus algorithmus = new Algorithmus();
 
+            Console.WriteLine("CycleCancelling \n");
             algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal1.txt", "cycleCancelling", true);
             algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal2.txt", "cycleCancelling", true);
             algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal3.txt", "cycleCancelling",true);
@@ -21,8 +22,8 @@ namespace KostenminimalFluss
             //algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/KostenminimalTest4.txt", "cycleCancelling", true);
 
 
-
-             algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal1.txt", "successiveShortestPath", true);
+            Console.WriteLine("SuccessiveShortestPath \n");
+            algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal1.txt", "successiveShortestPath", true);
              algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal2.txt", "successiveShortestPath", true);
              algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal3.txt", "successiveShortestPath", true);
              algorithmus.zeitOfAlgorithmus(@"../../KostenminimalFluss/Kostenminimal4.txt", "successiveShortestPath", true);
